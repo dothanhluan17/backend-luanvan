@@ -1,13 +1,7 @@
 const User = require('../models/User');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const generateToken = require('../utils/generateToken');
 
-// Generate JWT token
-const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: '7d',
-  });
-};
 
 // [GET] /api/users - Lấy danh sách user (admin)
 const getUsers = async (req, res) => {
@@ -29,8 +23,8 @@ const createUser = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashedPassword });
+    // KHÔNG hash password ở đây!
+    const newUser = new User({ name, email, password });
     const savedUser = await newUser.save();
 
     res.status(201).json({
@@ -50,11 +44,15 @@ const loginUser = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
+    // Dùng method matchPassword của model
+    const isMatch = user && (await user.matchPassword(password));
+
+    if (user && isMatch) {
       res.json({
         _id: user._id,
         name: user.name,
         email: user.email,
+        isAdmin: user.isAdmin,
         token: generateToken(user._id),
       });
     } else {
@@ -87,7 +85,7 @@ const updateProfile = async (req, res) => {
       user.name = req.body.name || user.name;
       user.email = req.body.email || user.email;
       if (req.body.password) {
-        user.password = await bcrypt.hash(req.body.password, 10);
+        user.password = req.body.password; // KHÔNG hash ở đây!
       }
 
       const updatedUser = await user.save();
@@ -111,7 +109,7 @@ const deleteUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (user) {
-      await user.remove();
+      await User.deleteOne({ _id: req.params.id }); // Sửa dòng này
       res.json({ message: 'User removed' });
     } else {
       res.status(404).json({ message: 'User not found' });
