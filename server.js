@@ -14,7 +14,7 @@ const { errorHandler } = require('./middleware/errorMiddleware'); // Thêm dòng
 const paymentRoutes = require("./routes/paymentRoutes");
 const contactRoutes = require('./routes/contactRoutes');
 const chatRoutes = require('./routes/chatRoutes');
-
+const bodyParser = require('body-parser');
 const cors = require('cors');
 
 dotenv.config();
@@ -25,7 +25,8 @@ const app = express();
 app.use(express.json());
 
 app.use(cors());
-
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use('/api/users', userRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/products', productRoutes);
