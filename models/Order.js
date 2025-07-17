@@ -15,6 +15,7 @@ const orderSchema = new mongoose.Schema(
         qty: Number,
         price: Number,
         image: String,
+        serialNumber: String,
       }
     ],
     shippingAddress: {
@@ -25,6 +26,8 @@ const orderSchema = new mongoose.Schema(
     },
     paymentMethod: String,
     totalPrice: { type: Number, required: true },
+      // ✅ Thêm dòng này:
+    orderId: { type: String, required: true, unique: true },
     isPaid: { type: Boolean, default: false },
     paidAt: Date,
     isDelivered: { type: Boolean, default: false },

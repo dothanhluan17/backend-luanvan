@@ -27,16 +27,17 @@ const getProductById = async (req, res) => {
 // [POST] /api/products - Thêm sản phẩm mới (admin)
 const createProduct = async (req, res) => {
   try {
-    const { name, price, description, image, category, countInStock, specs } = req.body;
+    const { name, serialNumber,price, description, image, category, countInStock, specs } = req.body;
 
     const product = new Product({
       name,
+      serialNumber,
       price,
       description,
       image,
       category,
       countInStock,
-      specs, // ✅ Thêm specs
+      specs, 
     });
 
     const savedProduct = await product.save();
@@ -49,17 +50,18 @@ const createProduct = async (req, res) => {
 // [PUT] /api/products/:id - Cập nhật sản phẩm (admin)
 const updateProduct = async (req, res) => {
   try {
-    const { name, price, description, image, category, countInStock, specs } = req.body;
+    const { name, serialNumber,price, description, image, category, countInStock, specs } = req.body;
 
     const product = await Product.findById(req.params.id);
     if (product) {
       product.name = name || product.name;
+       product.serialNumber = serialNumber || product.serialNumber;
       product.price = price || product.price;
       product.description = description || product.description;
       product.image = image || product.image;
       product.category = category || product.category;
       product.countInStock = countInStock || product.countInStock;
-      product.specs = specs || product.specs; // ✅ Cập nhật specs
+      product.specs = specs || product.specs; // Cập nhật specs
 
       const updatedProduct = await product.save();
       res.json(updatedProduct);
