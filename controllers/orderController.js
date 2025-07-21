@@ -139,6 +139,33 @@ const getOrderByOrderId = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+//huy don hang
+const cancelOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Chỉ cho phép hủy nếu đơn chưa giao
+    if (order.status === 'delivered') {
+      return res.status(400).json({ message: 'Đơn hàng đã giao không thể hủy' });
+    }
+
+    // Đảm bảo chỉ user của đơn đó mới được hủy
+    if (order.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Bạn không có quyền hủy đơn này' });
+    }
+
+    order.status = 'cancelled';
+    const cancelledOrder = await order.save();
+
+    res.json({ message: 'Đơn hàng đã được hủy', order: cancelledOrder });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 module.exports = {
   createOrder,
@@ -146,5 +173,6 @@ module.exports = {
   getOrderById,
   getOrders,
   updateOrderStatus,
-  getOrderByOrderId
+  getOrderByOrderId,
+  cancelOrder
 };

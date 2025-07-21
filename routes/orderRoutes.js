@@ -7,7 +7,8 @@ const {
   getOrderById,
   getOrders,
   updateOrderStatus,
-  getOrderByOrderId 
+  getOrderByOrderId,
+  cancelOrder
 } = require('../controllers/orderController');
 
 // Tạo đơn hàng mới
@@ -25,5 +26,7 @@ router.get('/', protect, admin, getOrders);
 router.put('/:id/status', protect, admin, updateOrderStatus);
 
 router.get('/orderid/:orderId', getOrderByOrderId);
+
+router.put('/:id/cancel', protect, cancelOrder);
 
 module.exports = router;
